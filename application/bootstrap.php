@@ -1,19 +1,18 @@
 <?php
 
 // -- Environment setup --------------------------------------------------------
-
 // Load the core Kohana class
-require SYSPATH.'classes/Kohana/Core'.EXT;
+require SYSPATH . 'classes/Kohana/Core' . EXT;
 
-if (is_file(APPPATH.'classes/Kohana'.EXT))
+if (is_file(APPPATH . 'classes/Kohana' . EXT))
 {
 	// Application extends the core
-	require APPPATH.'classes/Kohana'.EXT;
+	require APPPATH . 'classes/Kohana' . EXT;
 }
 else
 {
 	// Load empty core extension
-	require SYSPATH.'classes/Kohana'.EXT;
+	require SYSPATH . 'classes/Kohana' . EXT;
 }
 
 /**
@@ -59,7 +58,7 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
 /**
  * Enable composer autoload libraries
  */
-// require DOCROOT . '/vendor/autoload.php';
+require DOCROOT . '/vendor/autoload.php';
 
 /**
  * Set the mb_substitute_character to "none"
@@ -89,7 +88,7 @@ if (isset($_SERVER['SERVER_PROTOCOL']))
  */
 if (isset($_SERVER['KOHANA_ENV']))
 {
-	Kohana::$environment = constant('Kohana::'.strtoupper($_SERVER['KOHANA_ENV']));
+	Kohana::$environment = constant('Kohana::' . strtoupper($_SERVER['KOHANA_ENV']));
 }
 
 /**
@@ -108,13 +107,14 @@ if (isset($_SERVER['KOHANA_ENV']))
  * - boolean  expose      set the X-Powered-By header                        FALSE
  */
 Kohana::init(array(
-	'base_url'   => '/kohana/',
+	'base_url' => NULL,
+	'index_file' => FALSE
 ));
 
 /**
  * Attach the file write to logging. Multiple writers are supported.
  */
-Kohana::$log->attach(new Log_File(APPPATH.'logs'));
+Kohana::$log->attach(new Log_File(APPPATH . 'logs'));
 
 /**
  * Attach a file reader to config. Multiple readers are supported.
@@ -125,18 +125,18 @@ Kohana::$config->attach(new Config_File);
  * Enable modules. Modules are referenced by a relative or absolute path.
  */
 Kohana::modules(array(
-	// 'encrypt'    => MODPATH.'encrypt',    // Encryption supprt
-	// 'auth'       => MODPATH.'auth',       // Basic authentication
-	// 'cache'      => MODPATH.'cache',      // Caching with multiple backends
-	// 'codebench'  => MODPATH.'codebench',  // Benchmarking tool
-	// 'database'   => MODPATH.'database',   // Database access
-	// 'image'      => MODPATH.'image',      // Image manipulation
-	// 'minion'     => MODPATH.'minion',     // CLI Tasks
-	// 'orm'        => MODPATH.'orm',        // Object Relationship Mapping
-	// 'pagination' => MODPATH.'pagination', // Pagination
-	// 'unittest'   => MODPATH.'unittest',   // Unit testing
-	// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
-	));
+		// 'encrypt'    => MODPATH.'encrypt',    // Encryption supprt
+		// 'auth'       => MODPATH.'auth',       // Basic authentication
+		// 'cache'      => MODPATH.'cache',      // Caching with multiple backends
+		// 'codebench'  => MODPATH.'codebench',  // Benchmarking tool
+		// 'database'   => MODPATH.'database',   // Database access
+		// 'image'      => MODPATH.'image',      // Image manipulation
+		// 'minion'     => MODPATH.'minion',     // CLI Tasks
+		// 'orm'        => MODPATH.'orm',        // Object Relationship Mapping
+		// 'pagination' => MODPATH.'pagination', // Pagination
+		// 'unittest'   => MODPATH.'unittest',   // Unit testing
+		// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
+));
 
 /**
  * Cookie Salt
@@ -164,8 +164,22 @@ Kohana::modules(array(
  * Set the routes. Each route must have a minimum of a name, a URI and a set of
  * defaults for the URI.
  */
+Route::set('apires', '<directory>/<controller>(/<id>)')
+		->defaults([
+			'directory' => 'v1',
+			'controller' => 'index',
+			'action' => 'index',
+			'id' => NULL
+		])
+		->filter(function(Route $route, array $params, Request $request) {
+			if ($request->method() !== HTTP_Request::GET)
+			{
+				return FALSE; // This route only matches POST requests
+			}
+		});
+
 Route::set('default', '(<controller>(/<action>(/<id>)))')
-	->defaults(array(
-		'controller' => 'welcome',
-		'action'     => 'index',
-	));
+		->defaults(array(
+			'controller' => 'welcome',
+			'action' => 'index',
+		));
