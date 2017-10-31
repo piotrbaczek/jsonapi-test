@@ -5,6 +5,8 @@
  *
  * @author nzpetter
  */
+use Tobscure\JsonApi\Resource;
+
 class Controller_V1_Index extends Controller
 {
 
@@ -15,7 +17,7 @@ class Controller_V1_Index extends Controller
 		$user->id = 1;
 		$user->name = 'Piotr';
 		$user->surname = 'Gołasz';
-		$resource = new Tobscure\JsonApi\Resource($user, $userSerializer);
+		$resource = new Resource($user, $userSerializer);
 
 		echo json_encode($resource->toArray());
 	}
